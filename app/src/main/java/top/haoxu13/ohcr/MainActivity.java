@@ -24,6 +24,7 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
+
 import com.theartofdev.edmodo.cropper.CropImageView;
 import com.theartofdev.edmodo.cropper.CropImage;
 
@@ -52,10 +53,12 @@ public class MainActivity extends AppCompatActivity {
     protected Button _gallery_button;
     protected Button _bi_button;
     protected Button _detect_button;
+    protected Button _table_button;
     protected static final String PHOTO_TAKEN = "photo_taken";
     protected int RESULT_LOAD_IMAGE;
     protected Uri _image_uri;
     protected Bitmap _bitmap;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +99,8 @@ public class MainActivity extends AppCompatActivity {
         _detect_button = (Button) findViewById(R.id.detec_button);
         _detect_button.setOnClickListener(new DetectButtonClickHandler());
 
+        _table_button = (Button) findViewById(R.id.table_button);
+        //_table_button.setOnClickListener(new TableButtonClickHandler());
 
         File folder = new File(Environment.getExternalStorageDirectory() + "/OhCR");
         if (!folder.exists()) {
@@ -131,29 +136,28 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Image Process
+    // Binarize
     public class BiButtonClickHandler implements View.OnClickListener {
         public void onClick(View view) {
             Bitmap bitmap = _bitmap.copy(_bitmap.getConfig(), true);
-            Mat imgPW = new Mat();
+
             Mat imgMAT = new Mat();
             Utils.bitmapToMat(bitmap, imgMAT);
             Imgproc.cvtColor(imgMAT, imgMAT, Imgproc.COLOR_BGR2GRAY);
 
-            //imgPW = brightnessAndContrastAuto(imgMAT);
-            /*
-            Imgproc.cvtColor(imgMAT, imgMAT, Imgproc.COLOR_BGR2GRAY);
-            Imgproc.blur(imgMAT, imgMAT, new Size(3.0, 3.0));
-            Imgproc.adaptiveThreshold(imgMAT, imgMAT, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 23, 7);
-            */
-            //Imgproc.medianBlur(imgMAT, imgPW, 3);
-
             BinarizeProccess my_imgproc = new BinarizeProccess();
+            //imgMAT = my_imgproc.AdaptiveBinary(imgMAT);
             imgMAT = my_imgproc.Binarilze(imgMAT);
 
             Utils.matToBitmap(imgMAT, bitmap);
 
+            /* Tess
+            BinarizeProccess my_imgproc = new BinarizeProccess();
+            bitmap = my_imgproc.tessThreshold(bitmap);
+            */
             _image.setImageBitmap(bitmap);
+
+            _bitmap = bitmap;
         }
     }
 
@@ -161,47 +165,57 @@ public class MainActivity extends AppCompatActivity {
     public class DetectButtonClickHandler implements View.OnClickListener {
         public void onClick(View view) {
             Bitmap bitmap = _bitmap.copy(_bitmap.getConfig(), true);
+
             Mat imgMAT = new Mat();
             Utils.bitmapToMat(bitmap, imgMAT);
             Imgproc.cvtColor(imgMAT, imgMAT, Imgproc.COLOR_BGR2GRAY);
 
             TextDetection my_textdetec = new TextDetection();
-            imgMAT = my_textdetec.SWTtextDetection(imgMAT);
+            //imgMAT = my_textdetec.SWTtextDetection(imgMAT);
+            imgMAT = my_textdetec.MSER_Detection(imgMAT);
 
             Utils.matToBitmap(imgMAT, bitmap);
+
+            //TextDetection my_textdetec = new TextDetection();
+            //bitmap = my_textdetec.tessDetection(bitmap);
 
             _image.setImageBitmap(bitmap);
         }
     }
 
-    protected void startOcrActivity() {
-        try{
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), _image_uri);
-            TessBaseAPI baseApi = new TessBaseAPI();
-            Log.i("MakeMachine", "TessBaseAPI()");
-            baseApi.init(Environment.getExternalStorageDirectory() + "/", "chi_sim", baseApi.OEM_DEFAULT);
-            baseApi.setImage(bitmap);
-            long tStart = System.currentTimeMillis();
-            String recognizedText = baseApi.getUTF8Text();
-            long tEnd = System.currentTimeMillis();
-            long tDelta = tEnd - tStart;
-            double elapsedSeconds = tDelta / 1000.0;
-            baseApi.end();
 
-            AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-            alertDialog.setTitle("Reslut");
-            alertDialog.setMessage("time:" + elapsedSeconds + "s\n" + recognizedText);
-            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-            alertDialog.show();
+    public class TableButtonClickHandler implements View.OnClickListener {
+        public void onClick(View view) {
+
+            TableDetection tb = new TableDetection();
+
         }
-        catch (IOException e)
-        {
-        }
+    }
+
+
+    // OCR
+    protected void startOcrActivity() {
+        TessBaseAPI baseApi = new TessBaseAPI();
+        Log.i("MakeMachine", "TessBaseAPI()");
+        baseApi.init(Environment.getExternalStorageDirectory() + "/", "chi_sim", baseApi.OEM_DEFAULT);
+        baseApi.setImage(_bitmap);
+        long tStart = System.currentTimeMillis();
+        String recognizedText = baseApi.getUTF8Text();
+        long tEnd = System.currentTimeMillis();
+        long tDelta = tEnd - tStart;
+        double elapsedSeconds = tDelta / 1000.0;
+        baseApi.end();
+
+        AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+        alertDialog.setTitle("Reslut");
+        alertDialog.setMessage("time:" + elapsedSeconds + "s\n" + recognizedText);
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.show();
     }
 
     @Override
@@ -236,10 +250,13 @@ public class MainActivity extends AppCompatActivity {
                 ImageView imageView = (ImageView) findViewById(R.id.image);
                 try {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri);
-                    imageView.setImageBitmap(bitmap);
 
-                    _bitmap = bitmap.copy(bitmap.getConfig(), true);;
+                    _bitmap = bitmap.copy(bitmap.getConfig(), true);
+                    _bitmap = Bitmap.createScaledBitmap(_bitmap, _bitmap.getWidth()/2, _bitmap.getHeight()/2, true);
                     _image_uri = resultUri;
+
+                    imageView.setImageBitmap(_bitmap);
+
                 }
                 catch (IOException e) {
                 }

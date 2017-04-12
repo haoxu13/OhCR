@@ -60,13 +60,19 @@
         <Button android:id="@+id/detec_button"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Detection"
+            android:text="Detec"
             android:layout_weight="1"/>
 
         <Button android:id="@+id/ocr_button"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="OCR"
+            android:layout_weight="1"/>
+
+        <Button android:id="@+id/table_button"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Table"
             android:layout_weight="1"/>
 
     </LinearLayout>

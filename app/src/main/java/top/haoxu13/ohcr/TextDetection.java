@@ -1,10 +1,17 @@
 package top.haoxu13.ohcr;
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.os.Environment;
 import android.util.Log;
 
 import org.opencv.core.Core;
+import org.opencv.core.KeyPoint;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfInt4;
+import org.opencv.core.MatOfKeyPoint;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
@@ -12,7 +19,13 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.core.CvType;
+import org.opencv.features2d.MSER;
 
+
+import com.googlecode.tesseract.android.TessBaseAPI;
+import com.googlecode.leptonica.android.Pixa;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,9 +42,18 @@ import java.lang.Math;
 
 /*
     Copyright 2012 Andrew Perrault and Saurav Kumar.
+    https://github.com/aperrau/DetectText/blob/master/TextDetection.cpp
 */
 
 public class TextDetection {
+
+    /*
+    public native int swtMat( long input, long output);
+
+    static {
+        System.loadLibrary("swt-jni");
+    }
+    */
 
     // for debug
     private int counter = 0;
@@ -254,37 +276,6 @@ public class TextDetection {
         Core.convertScaleAbs(SWTImage, SWTImage);
 
         return SWTImage;
-
-        // Calculate legally connect components from SWT and gradient image.
-        // return type is a vector of vectors, where each outer vector is a component and
-        // the inner vector contains the (y,x) of each pixel in that component.
-        /*
-        std::vector<std::vector<SWTPoint2d> > components = findLegallyConnectedComponents(SWTImage, rays);
-
-        // Filter the components
-        std::vector<std::vector<SWTPoint2d> > validComponents;
-        std::vector<SWTPointPair2d > compBB;
-        std::vector<Point2dFloat> compCenters;
-        std::vector<float> compMedians;
-        std::vector<SWTPoint2d> compDimensions;
-        filterComponents(SWTImage, components, validComponents, compCenters, compMedians, compDimensions, compBB );
-
-        Mat output3( input.size(), CV_8UC3 );
-        renderComponentsWithBoxes (SWTImage, validComponents, compBB, output3);
-        imwrite ( "components.png",output3);
-        //
-
-        // Make chains of components
-        std::vector<Chain> chains;
-        chains = makeChains(input, validComponents, compCenters, compMedians, compDimensions, compBB);
-
-        Mat output4( input.size(), CV_8UC1 );
-        renderChains ( SWTImage, validComponents, chains, output4 );
-        //imwrite ( "text.png", output4);
-
-        Mat output5( input.size(), CV_8UC3 );
-        cvtColor (output4, output5, CV_GRAY2RGB);
-        */
     }
 
     // An attempt to detect text area via Contours
@@ -330,5 +321,53 @@ public class TextDetection {
         }
 
         return  edgeImage;
+    }
+
+    public Bitmap tessDetection(Bitmap bitmap) {
+        ArrayList<android.graphics.Rect> rect_list;
+        Pixa pixa;
+        TessBaseAPI baseApi = new TessBaseAPI();
+        baseApi.init(Environment.getExternalStorageDirectory() + "/", "chi_sim", baseApi.OEM_DEFAULT);
+        baseApi.setImage(bitmap);
+        pixa = baseApi.getConnectedComponents();
+        rect_list = pixa.getBoxRects();
+
+        Canvas canvas = new Canvas(bitmap);
+        Paint p = new Paint();
+        p.setStyle(Paint.Style.STROKE);
+        p.setColor(Color.RED);
+
+        for(int i = 0; i < rect_list.size(); i++)
+            canvas.drawRect(rect_list.get(i), p);
+
+        return bitmap;
+    }
+
+
+    public Mat MSER_Detection(Mat src) {
+        MatOfKeyPoint mokp = new MatOfKeyPoint();
+        KeyPoint kp[];
+        MSER mser = MSER.create();
+        mser.detect(src, mokp);
+        kp = mokp.toArray();
+
+        double pix[] = new  double[3];
+        pix[0] = 255;
+        pix[1] = 0;
+        pix[2] = 0;
+
+        Imgproc.cvtColor(src, src, Imgproc.COLOR_GRAY2BGR);
+
+        for(int i = 0; i < kp.length; i++) {
+            int x = (int)kp[i].pt.x;
+            int y = (int)kp[i].pt.y;
+            src.put(y, x, pix);
+        }
+
+        return src;
+    }
+
+    public Mat SWT_C(Mat src) {
+        return src;
     }
 }

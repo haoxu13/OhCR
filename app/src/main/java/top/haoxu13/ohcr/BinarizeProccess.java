@@ -1,12 +1,24 @@
 package top.haoxu13.ohcr;
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.os.Environment;
 import android.util.Log;
 
+import com.googlecode.leptonica.android.Pix;
+import com.googlecode.leptonica.android.Pixa;
+import com.googlecode.tesseract.android.TessBaseAPI;
+
+import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -229,6 +241,14 @@ public class BinarizeProccess {
         return  src;
     }
 
+    public Mat AdaptiveBinary(Mat src)
+    {
+        Mat result = new Mat();
+        Imgproc.blur(src, result, new Size(3.0, 3.0));
+        Imgproc.adaptiveThreshold(result, result, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 23, 7);
+        return  result;
+    }
+
     public Mat thresholdPercentile(Mat src, Mat Mask, int KS)
     {
         byte buff[] = new byte[src.cols()*src.rows()];
@@ -237,13 +257,30 @@ public class BinarizeProccess {
         src.get(0, 0, buff);
         Mask.get(0, 0, mask_buff);
         Log.d("threshold", "threshold");
+        int sum = 0;
+        int counter = 0;
         for(int row = 1; row <= src.rows(); row++) {
             for(int col = 1; col <= src.cols(); col++){
                 if(mask_buff[(row-1)*src.cols()+col-1] == (byte)255) {
                     new_buff[(row - 1) * src.cols() + col - 1] = buff[(row - 1) * src.cols() + col - 1];
+                    sum += buff[(row - 1) * src.cols() + col - 1];
+                    counter++;
                 }
                 else
                     new_buff[(row-1)*src.cols()+col-1] = (byte)255;
+            }
+        }
+
+        int avg = sum / counter;
+
+        for(int row = 1; row <= src.rows(); row++) {
+            for(int col = 1; col <= src.cols(); col++){
+                if(new_buff[(row - 1) * src.cols() + col - 1] != (byte)255) {
+                    if(new_buff[(row - 1) * src.cols() + col - 1] > avg)
+                        new_buff[(row - 1) * src.cols() + col - 1] = 0;
+                    else
+                        new_buff[(row - 1) * src.cols() + col - 1] = (byte)255;
+                }
             }
         }
 
@@ -251,6 +288,11 @@ public class BinarizeProccess {
         return src;
     }
 
+    /**
+     * Percentile Filter
+     * @param src
+     * @return
+     */
     public Mat Binarilze(Mat src) {
         Mat imgPW = new Mat();
         Mat imgMAT = src;
@@ -264,5 +306,21 @@ public class BinarizeProccess {
 
     private int Byte2Int(byte x) {
         return x & 0xff;
+    }
+
+    public Bitmap tessThreshold(Bitmap bitmap) {
+        Pix pix;
+        TessBaseAPI baseApi = new TessBaseAPI();
+        baseApi.init(Environment.getExternalStorageDirectory() + "/", "chi_sim", baseApi.OEM_DEFAULT);
+        baseApi.setImage(bitmap);
+        pix = baseApi.getThresholdedImage();
+
+        for(int row = 0; row < bitmap.getHeight(); row++)
+            for(int col = 0; col < bitmap.getWidth(); col++)
+            {
+                bitmap.setPixel(col,row, pix.getPixel(col,row));
+            }
+
+        return bitmap;
     }
 }
