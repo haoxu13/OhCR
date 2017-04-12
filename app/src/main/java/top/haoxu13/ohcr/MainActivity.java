@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         _detect_button.setOnClickListener(new DetectButtonClickHandler());
 
         _table_button = (Button) findViewById(R.id.table_button);
-        //_table_button.setOnClickListener(new TableButtonClickHandler());
+        _table_button.setOnClickListener(new TableButtonClickHandler());
 
         File folder = new File(Environment.getExternalStorageDirectory() + "/OhCR");
         if (!folder.exists()) {
@@ -146,8 +146,8 @@ public class MainActivity extends AppCompatActivity {
             Imgproc.cvtColor(imgMAT, imgMAT, Imgproc.COLOR_BGR2GRAY);
 
             BinarizeProccess my_imgproc = new BinarizeProccess();
-            //imgMAT = my_imgproc.AdaptiveBinary(imgMAT);
-            imgMAT = my_imgproc.Binarilze(imgMAT);
+            imgMAT = my_imgproc.AdaptiveBinary(imgMAT);
+            //imgMAT = my_imgproc.Binarilze(imgMAT);
 
             Utils.matToBitmap(imgMAT, bitmap);
 
@@ -184,11 +184,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    // Table Detection
     public class TableButtonClickHandler implements View.OnClickListener {
         public void onClick(View view) {
-
             TableDetection tb = new TableDetection();
+            Bitmap bitmap = _bitmap.copy(_bitmap.getConfig(), true);
 
+            Mat imgMAT = new Mat();
+            Utils.bitmapToMat(bitmap, imgMAT);
+            Imgproc.cvtColor(imgMAT, imgMAT, Imgproc.COLOR_BGR2GRAY);
+
+            imgMAT = tb.maskLine(imgMAT);
+
+            Utils.matToBitmap(imgMAT, bitmap);
+
+            _image.setImageBitmap(bitmap);
         }
     }
 
@@ -238,8 +248,9 @@ public class MainActivity extends AppCompatActivity {
             int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
             String picturePath = cursor.getString(columnIndex);
             cursor.close();
+            _bitmap = BitmapFactory.decodeFile(picturePath);
             ImageView imageView = (ImageView) findViewById(R.id.image);
-            imageView.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+            imageView.setImageBitmap(_bitmap);
             _path = picturePath;
             _image_uri = selectedImage;
         }

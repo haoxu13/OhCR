@@ -33,8 +33,9 @@ public class TableDetection {
         col_line = new ArrayList<List<Point>>();
 
         // Vertical
+        List<Point> rl = new ArrayList<Point>();
+
         for(int row = 0; row < src.cols(); row++) {
-            List<Point> rl = new ArrayList<Point>();
             for (int col = 0; col < src.cols(); col++) {
                 if (src.get(row, col)[0] < 255) {
                     Point p = new Point();
@@ -46,6 +47,7 @@ public class TableDetection {
                         flag = true;
                 } else {
                     current_len = 0;
+                    rl.clear();
                     if(flag) {
                         row_line.add(rl);
                         flag = false;
