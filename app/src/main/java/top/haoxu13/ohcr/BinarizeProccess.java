@@ -246,6 +246,8 @@ public class BinarizeProccess {
         Mat result = new Mat();
         Imgproc.blur(src, result, new Size(3.0, 3.0));
         Imgproc.adaptiveThreshold(result, result, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 23, 7);
+        Imgproc.blur(result, result, new Size(11.0, 11.0));
+
         return  result;
     }
 

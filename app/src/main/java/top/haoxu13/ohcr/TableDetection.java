@@ -26,16 +26,16 @@ public class TableDetection {
      */
     public void detectTable(Mat src) {
         boolean flag = false;
-        int threshoLd_width = src.width()/2;
-        int threshold_height = src.height()/2;
+        int threshoLd_width = src.width()/3;
+        int threshold_height = src.height()/3;
         int current_len = 0;
+
         row_line = new ArrayList<List<Point>>();
         col_line = new ArrayList<List<Point>>();
 
-        // Vertical
-        List<Point> rl = new ArrayList<Point>();
-
-        for(int row = 0; row < src.cols(); row++) {
+        // Horizontal
+        for(int row = 0; row < src.rows(); row++) {
+            List<Point> rl = new ArrayList<Point>();
             for (int col = 0; col < src.cols(); col++) {
                 if (src.get(row, col)[0] < 255) {
                     Point p = new Point();
@@ -47,7 +47,6 @@ public class TableDetection {
                         flag = true;
                 } else {
                     current_len = 0;
-                    rl.clear();
                     if(flag) {
                         row_line.add(rl);
                         flag = false;
@@ -57,11 +56,12 @@ public class TableDetection {
         }
 
         current_len = 0;
+        flag = false;
 
-        // Horizontal
+        // Vertical
         for (int col = 0; col < src.cols(); col++) {
             List<Point> cl = new ArrayList<Point>();
-            for(int row = 0; row < src.cols(); row++) {
+            for(int row = 0; row < src.rows(); row++) {
                 if (src.get(row, col)[0] < 255) {
                     Point p = new Point();
                     p.x = col;
