@@ -41,7 +41,10 @@ public class MainActivity extends AppCompatActivity {
 
     static {
         System.loadLibrary("opencv_java3");
+        System.loadLibrary("ccv-libs");
     }
+
+    public native String  stringFromCCV();
 
     protected Button _button;
     protected ImageView _image;
@@ -164,6 +167,7 @@ public class MainActivity extends AppCompatActivity {
     // Text Detection
     public class DetectButtonClickHandler implements View.OnClickListener {
         public void onClick(View view) {
+            /*
             Bitmap bitmap = _bitmap.copy(_bitmap.getConfig(), true);
 
             Mat imgMAT = new Mat();
@@ -180,6 +184,17 @@ public class MainActivity extends AppCompatActivity {
             //bitmap = my_textdetec.tessDetection(bitmap);
 
             _image.setImageBitmap(bitmap);
+*/
+            AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+            alertDialog.setTitle("JNI");
+            alertDialog.setMessage(stringFromCCV());
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+            alertDialog.show();
         }
     }
 

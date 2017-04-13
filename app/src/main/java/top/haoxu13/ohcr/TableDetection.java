@@ -20,7 +20,7 @@ public class TableDetection {
 
 
     /**
-     * Base on LONG RUN LINE
+     * Base on LONG RUN LINE, O(n^2) n = image size
      * @param src
      * @return
      */
