@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "/Users/Hao/AndroidStudioProjects/OhCR/gen-libs/build/intermediates/res/merged/debug/layout-v11/notification_template_big_media_custom.xml",
+        "source": "/Users/Hao/.android/build-cache/3c007e3ab7e816d644682277d41278a70d4b39fb/output/res/layout-v11/notification_template_big_media_custom.xml"
+    },
+    {
+        "merged": "/Users/Hao/AndroidStudioProjects/OhCR/gen-libs/build/intermediates/res/merged/debug/layout-v11/notification_template_big_media_narrow_custom.xml",
+        "source": "/Users/Hao/.android/build-cache/3c007e3ab7e816d644682277d41278a70d4b39fb/output/res/layout-v11/notification_template_big_media_narrow_custom.xml"
+    },
+    {
+        "merged": "/Users/Hao/AndroidStudioProjects/OhCR/gen-libs/build/intermediates/res/merged/debug/layout-v11/notification_media_cancel_action.xml",
+        "source": "/Users/Hao/.android/build-cache/3c007e3ab7e816d644682277d41278a70d4b39fb/output/res/layout-v11/notification_media_cancel_action.xml"
+    },
+    {
+        "merged": "/Users/Hao/AndroidStudioProjects/OhCR/gen-libs/build/intermediates/res/merged/debug/layout-v11/notification_media_action.xml",
+        "source": "/Users/Hao/.android/build-cache/3c007e3ab7e816d644682277d41278a70d4b39fb/output/res/layout-v11/notification_media_action.xml"
+    },
+    {
+        "merged": "/Users/Hao/AndroidStudioProjects/OhCR/gen-libs/build/intermediates/res/merged/debug/layout-v11/notification_template_big_media.xml",
+        "source": "/Users/Hao/.android/build-cache/3c007e3ab7e816d644682277d41278a70d4b39fb/output/res/layout-v11/notification_template_big_media.xml"
+    },
+    {
+        "merged": "/Users/Hao/AndroidStudioProjects/OhCR/gen-libs/build/intermediates/res/merged/debug/layout-v11/notification_template_big_media_narrow.xml",
+        "source": "/Users/Hao/.android/build-cache/3c007e3ab7e816d644682277d41278a70d4b39fb/output/res/layout-v11/notification_template_big_media_narrow.xml"
+    }
+]

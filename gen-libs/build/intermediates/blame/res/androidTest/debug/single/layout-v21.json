@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "/Users/Hao/AndroidStudioProjects/OhCR/gen-libs/build/intermediates/res/merged/androidTest/debug/layout-v21/notification_template_icon_group.xml",
+        "source": "/Users/Hao/.android/build-cache/3c007e3ab7e816d644682277d41278a70d4b39fb/output/res/layout-v21/notification_template_icon_group.xml"
+    },
+    {
+        "merged": "/Users/Hao/AndroidStudioProjects/OhCR/gen-libs/build/intermediates/res/merged/androidTest/debug/layout-v21/notification_action.xml",
+        "source": "/Users/Hao/.android/build-cache/3c007e3ab7e816d644682277d41278a70d4b39fb/output/res/layout-v21/notification_action.xml"
+    },
+    {
+        "merged": "/Users/Hao/AndroidStudioProjects/OhCR/gen-libs/build/intermediates/res/merged/androidTest/debug/layout-v21/notification_action_tombstone.xml",
+        "source": "/Users/Hao/.android/build-cache/3c007e3ab7e816d644682277d41278a70d4b39fb/output/res/layout-v21/notification_action_tombstone.xml"
+    },
+    {
+        "merged": "/Users/Hao/AndroidStudioProjects/OhCR/gen-libs/build/intermediates/res/merged/androidTest/debug/layout-v21/notification_template_custom_big.xml",
+        "source": "/Users/Hao/.android/build-cache/3c007e3ab7e816d644682277d41278a70d4b39fb/output/res/layout-v21/notification_template_custom_big.xml"
+    }
+]

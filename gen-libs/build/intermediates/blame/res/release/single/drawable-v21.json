@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "/Users/Hao/AndroidStudioProjects/OhCR/gen-libs/build/intermediates/res/merged/release/drawable-v21/notification_action_background.xml",
+        "source": "/Users/Hao/.android/build-cache/3c007e3ab7e816d644682277d41278a70d4b39fb/output/res/drawable-v21/notification_action_background.xml"
+    },
+    {
+        "merged": "/Users/Hao/AndroidStudioProjects/OhCR/gen-libs/build/intermediates/res/merged/release/drawable-v21/abc_action_bar_item_background_material.xml",
+        "source": "/Users/Hao/.android/build-cache/3c007e3ab7e816d644682277d41278a70d4b39fb/output/res/drawable-v21/abc_action_bar_item_background_material.xml"
+    },
+    {
+        "merged": "/Users/Hao/AndroidStudioProjects/OhCR/gen-libs/build/intermediates/res/merged/release/drawable-v21/abc_edit_text_material.xml",
+        "source": "/Users/Hao/.android/build-cache/3c007e3ab7e816d644682277d41278a70d4b39fb/output/res/drawable-v21/abc_edit_text_material.xml"
+    },
+    {
+        "merged": "/Users/Hao/AndroidStudioProjects/OhCR/gen-libs/build/intermediates/res/merged/release/drawable-v21/abc_btn_colored_material.xml",
+        "source": "/Users/Hao/.android/build-cache/3c007e3ab7e816d644682277d41278a70d4b39fb/output/res/drawable-v21/abc_btn_colored_material.xml"
+    }
+]
