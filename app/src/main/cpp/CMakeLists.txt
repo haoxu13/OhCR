@@ -20,20 +20,21 @@ cmake_minimum_required(VERSION 3.4.1)
 # configure import libs
 set(distribution_DIR ${CMAKE_SOURCE_DIR}/../../../../distribution)
 
-add_library(lib_ccv_swt STATIC IMPORTED)
-set_target_properties(lib_ccv_swt PROPERTIES IMPORTED_LOCATION
-    ${distribution_DIR}/ccv_swt/lib/${ANDROID_ABI}/libccv_swt.a)
+add_library(lib_ccv STATIC IMPORTED)
+set_target_properties(lib_ccv PROPERTIES IMPORTED_LOCATION
+    ${distribution_DIR}/ccv/lib/${ANDROID_ABI}/libccv.a)
 
 
 # build application's shared lib
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
 
 add_library(ccv-libs SHARED
-            ccv-libs.cpp)
+            ccv-libs.c)
 
 target_include_directories(ccv-libs PRIVATE
-                           ${distribution_DIR}/ccv_swt/include)
+                           ${distribution_DIR}/ccv/include)
 
 target_link_libraries(ccv-libs
                       android
-                      lib_ccv_swt)
+                      log
+                      lib_ccv)

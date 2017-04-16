@@ -47,14 +47,14 @@ import java.lang.Math;
 
 public class TextDetection {
 
-    /*
-    public native int swtMat( long input, long output);
-
     static {
-        System.loadLibrary("swt-jni");
+        System.loadLibrary("ccv-libs");
     }
-    */
 
+    // return array of Rects
+    public native Rect[] swtWordRect(byte[] buffer, int rows, int cols, int scanline);
+    public native byte[] swtImage(byte[] buffer, int rows, int cols, int scanline);
+    public native byte[] TestRead(byte[] buffer, int rows, int cols, int scanline);
     // for debug
     private int counter = 0;
 
@@ -367,7 +367,64 @@ public class TextDetection {
         return src;
     }
 
-    public Mat SWT_C(Mat src) {
+    public Mat swtFindRect_C(Mat src) {
+        Rect rect_array[];
+        byte buf[] = new byte[src.rows()*src.cols()];
+        int scanline = (int)(src.step1() * src.elemSize1());
+        int rows = src.rows();
+        int cols = src.cols();
+        src.get(0,0, buf);
+        rect_array = swtWordRect(buf, rows, cols, scanline);
+
+        double pix[] = new  double[3];
+        pix[0] = 255;
+        pix[1] = 0;
+        pix[2] = 0;
+
+        Imgproc.cvtColor(src, src, Imgproc.COLOR_GRAY2BGR);
+
+        for(int i = 0; i < rect_array.length; i++) {
+            for(int j = 0; j < rect_array[i].width; j++){
+                int x = (int)rect_array[i].x;
+                int y = (int)rect_array[i].y+j;
+                src.put(y, x, pix);
+                src.put(y, x+rect_array[i].height, pix);
+
+            }
+            for(int j = 0; j < rect_array[i].height; j++){
+                int x = (int)rect_array[i].x+j;
+                int y = (int)rect_array[i].y;
+                src.put(y, x, pix);
+                src.put(y+rect_array[i].width, x, pix);
+            }
+        }
+
+        return src;
+    }
+
+    public Mat getSWTImage_C(Mat src) {
+        byte buf[] = new byte[src.rows()*src.cols()];
+        int scanline = (int)(src.step1() * src.elemSize1());
+        int rows = src.rows();
+        int cols = src.cols();
+
+        src.get(0,0, buf);
+        buf = swtImage(buf, rows, cols, scanline);
+        src.put(0, 0, buf);
+
+        return src;
+    }
+
+    public Mat TestRead_C(Mat src) {
+        byte buf[] = new byte[src.rows()*src.cols()];
+        int rows = src.rows();
+        int cols = src.cols();
+        int scanline = (int)(src.step1()*src.elemSize1());
+
+        src.get(0,0, buf);
+        buf = TestRead(buf, rows, cols, scanline);
+        src.put(0, 0, buf);
+
         return src;
     }
 }

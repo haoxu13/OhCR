@@ -41,10 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
     static {
         System.loadLibrary("opencv_java3");
-        System.loadLibrary("ccv-libs");
     }
-
-    public native String  stringFromCCV();
 
     protected Button _button;
     protected ImageView _image;
@@ -167,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
     // Text Detection
     public class DetectButtonClickHandler implements View.OnClickListener {
         public void onClick(View view) {
-            /*
+
             Bitmap bitmap = _bitmap.copy(_bitmap.getConfig(), true);
 
             Mat imgMAT = new Mat();
@@ -176,7 +173,10 @@ public class MainActivity extends AppCompatActivity {
 
             TextDetection my_textdetec = new TextDetection();
             //imgMAT = my_textdetec.SWTtextDetection(imgMAT);
-            imgMAT = my_textdetec.MSER_Detection(imgMAT);
+            //imgMAT = my_textdetec.MSER_Detection(imgMAT);
+            imgMAT = my_textdetec.swtFindRect_C(imgMAT);
+            //imgMAT = my_textdetec.getSWTImage_C(imgMAT);
+            //imgMAT = my_textdetec.TestRead_C(imgMAT);
 
             Utils.matToBitmap(imgMAT, bitmap);
 
@@ -184,17 +184,7 @@ public class MainActivity extends AppCompatActivity {
             //bitmap = my_textdetec.tessDetection(bitmap);
 
             _image.setImageBitmap(bitmap);
-*/
-            AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-            alertDialog.setTitle("JNI");
-            alertDialog.setMessage(stringFromCCV());
-            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-            alertDialog.show();
+
         }
     }
 

@@ -15,8 +15,11 @@ android {
         }
         externalNativeBuild {
             cmake {
-                arguments '-DANDROID_PLATFORM=android-13',
-                        '-DANDROID_TOOLCHAIN=clang', '-DANDROID_STL=gnustl_static'
+                arguments '-DANDROID_PLATFORM=android-21',
+                        '-DANDROID_TOOLCHAIN=clang',
+                        '-DANDROID_STL=gnustl_static',
+                        '-DANDROID_ALLOW_UNDEFINED_SYMBOL=TRUE'
+
             }
         }
     }
@@ -43,5 +46,5 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.rmtheis:tess-two:6.2.0'
     compile project(':openCVLibrary320')
-    compile project(':gen-libs')
+    //compile project(':gen-libs')
 }

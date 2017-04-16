@@ -24,9 +24,11 @@ set(CMAKE_VERBOSE_MAKEFILE on)
 
 set(lib_src_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
+include_directories(include)
+
 set(lib_build_DIR $ENV{HOME}/tmp)
 file(MAKE_DIRECTORY ${lib_build_DIR})
 
 
-add_subdirectory(${lib_src_DIR}/ccv_swt ${lib_build_DIR}/ccv_swt)
+add_subdirectory(${lib_src_DIR}/ccv ${lib_build_DIR}/ccv)
 

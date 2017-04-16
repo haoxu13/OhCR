@@ -12,10 +12,12 @@ android {
 
         externalNativeBuild {
             cmake {
-                arguments '-DANDROID_PLATFORM=android-9',
-                          '-DANDROID_TOOLCHAIN=clang'
+                arguments '-DANDROID_PLATFORM=android-21',
+                          '-DANDROID_TOOLCHAIN=clang',
+                          '-DANDROID_ALLOW_UNDEFINED_SYMBOL=TRUE'
+
                 // explicitly build libs
-                targets 'ccv_swt'
+                targets 'ccv'
             }
            
         }
