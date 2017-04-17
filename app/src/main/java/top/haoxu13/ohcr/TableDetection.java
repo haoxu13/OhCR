@@ -26,8 +26,8 @@ public class TableDetection {
      */
     public void detectTable(Mat src) {
         boolean flag = false;
-        int threshoLd_width = src.width()/3;
-        int threshold_height = src.height()/3;
+        int threshoLd_width = src.width()/2;
+        int threshold_height = src.height()/2;
         int current_len = 0;
 
         row_line = new ArrayList<List<Point>>();

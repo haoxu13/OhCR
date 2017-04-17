@@ -30,34 +30,40 @@ Java_top_haoxu13_ohcr_TextDetection_swtWordRect(JNIEnv *env, jobject thiz,
     jbyte* buf = (*env)->GetByteArrayElements(env, array, NULL);
     // to ccv image
     ccv_dense_matrix_t* image = 0;
-    ccv_read(buf, &image, CCV_IO_GRAY_RAW, (int)rows, (int)cols, (int)scanline);
-    // get swt detect words result
+    ccv_enable_default_cache();
     ccv_array_t* result_array = 0;
-    result_array = ccv_swt_detect_words(image, ccv_swt_default_params);
-    // convert to point array
-    ccv_comp_t* result_comps = (ccv_comp_t*)malloc(sizeof(ccv_comp_t)*result_array->size);
-    // find Rect Class and construct Rect Array
     jobjectArray rect_array;
-    jclass  cls = (*env)->FindClass(env, "org/opencv/core/Rect");
-    jmethodID constructor = (*env)->GetMethodID(env, cls, "<init>", "()V");
-    jobject init_object = (*env)->NewObject(env, cls, constructor);
-    rect_array = (jobjectArray)(*env)->NewObjectArray(env, result_array->size, cls, init_object);
-    // get field of Rect Class, "I" represent for int
-    jfieldID xField = (*env)->GetFieldID(env, cls, "x", "I");
-    jfieldID yField = (*env)->GetFieldID(env, cls, "y", "I");
-    jfieldID widthField = (*env)->GetFieldID(env, cls, "width", "I");
-    jfieldID heightField = (*env)->GetFieldID(env, cls, "height", "I");
-    // set value
-    for(int i = 0; i < result_array->size; i++) {
-        result_comps[i] = ((ccv_comp_t*)result_array->data)[i];
-        jobject element = (*env)->NewObject(env, cls, constructor);
-        (*env)->SetIntField(env, element, xField, (jint)result_comps[i].rect.x);
-        (*env)->SetIntField(env, element, yField, (jint)result_comps[i].rect.y);
-        (*env)->SetIntField(env, element, widthField, (jint)result_comps[i].rect.width);
-        (*env)->SetIntField(env, element, heightField, (jint)result_comps[i].rect.height);
-        (*env)->SetObjectArrayElement(env, rect_array, i, element);
+    ccv_read(buf, &image, CCV_IO_GRAY_RAW, (int)rows, (int)cols, (int)scanline);
+    if(image != 0) {
+        // get swt detect words result
+        result_array = ccv_swt_detect_words(image, ccv_swt_default_params);
+        if(result_array) {
+            // find Rect Class and construct Rect Array
+            jclass  cls = (*env)->FindClass(env, "org/opencv/core/Rect");
+            jmethodID constructor = (*env)->GetMethodID(env, cls, "<init>", "()V");
+            jobject init_object = (*env)->NewObject(env, cls, constructor);
+            rect_array = (jobjectArray)(*env)->NewObjectArray(env, result_array->size, cls, init_object);
+            // get field of Rect Class, "I" represent for int
+            jfieldID xField = (*env)->GetFieldID(env, cls, "x", "I");
+            jfieldID yField = (*env)->GetFieldID(env, cls, "y", "I");
+            jfieldID widthField = (*env)->GetFieldID(env, cls, "width", "I");
+            jfieldID heightField = (*env)->GetFieldID(env, cls, "height", "I");
+            // set value
+            for(int i = 0; i < result_array->rnum; i++) {
+                ccv_rect_t* rect = (ccv_rect_t*)ccv_array_get(result_array, i);
+                jobject element = (*env)->NewObject(env, cls, constructor);
+                (*env)->SetIntField(env, element, xField, (jint)rect->x);
+                (*env)->SetIntField(env, element, yField, (jint)rect->y);
+                (*env)->SetIntField(env, element, widthField, (jint)rect->width);
+                (*env)->SetIntField(env, element, heightField, (jint)rect->height);
+                (*env)->SetObjectArrayElement(env, rect_array, i, element);
+            }
+        }
+        ccv_array_free(result_array);
+
     }
-    free(result_comps);
+
+    ccv_drain_cache();
     return rect_array;
 }
 

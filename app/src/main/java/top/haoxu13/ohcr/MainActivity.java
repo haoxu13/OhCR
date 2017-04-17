@@ -145,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
             Utils.bitmapToMat(bitmap, imgMAT);
             Imgproc.cvtColor(imgMAT, imgMAT, Imgproc.COLOR_BGR2GRAY);
 
+
             BinarizeProccess my_imgproc = new BinarizeProccess();
             imgMAT = my_imgproc.AdaptiveBinary(imgMAT);
             //imgMAT = my_imgproc.Binarilze(imgMAT);
@@ -164,6 +165,7 @@ public class MainActivity extends AppCompatActivity {
     // Text Detection
     public class DetectButtonClickHandler implements View.OnClickListener {
         public void onClick(View view) {
+            long tStart = System.currentTimeMillis();
 
             Bitmap bitmap = _bitmap.copy(_bitmap.getConfig(), true);
 
@@ -172,9 +174,9 @@ public class MainActivity extends AppCompatActivity {
             Imgproc.cvtColor(imgMAT, imgMAT, Imgproc.COLOR_BGR2GRAY);
 
             TextDetection my_textdetec = new TextDetection();
-            //imgMAT = my_textdetec.SWTtextDetection(imgMAT);
+            imgMAT = my_textdetec.SWTtextDetection(imgMAT);
             //imgMAT = my_textdetec.MSER_Detection(imgMAT);
-            imgMAT = my_textdetec.swtFindRect_C(imgMAT);
+            //imgMAT = my_textdetec.swtFindRect_C(imgMAT);
             //imgMAT = my_textdetec.getSWTImage_C(imgMAT);
             //imgMAT = my_textdetec.TestRead_C(imgMAT);
 
@@ -184,6 +186,20 @@ public class MainActivity extends AppCompatActivity {
             //bitmap = my_textdetec.tessDetection(bitmap);
 
             _image.setImageBitmap(bitmap);
+
+            long tEnd = System.currentTimeMillis();
+            long tDelta = tEnd - tStart;
+            double elapsedSeconds = tDelta / 1000.0;
+            AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+            alertDialog.setTitle("Reslut");
+            alertDialog.setMessage("time:" + elapsedSeconds);
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+            alertDialog.show();
 
         }
     }

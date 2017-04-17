@@ -303,6 +303,7 @@ public class BinarizeProccess {
         imgMAT = differenceOfGaussian(imgMAT);
         imgMAT = dilation(imgMAT);
         imgMAT = thresholdPercentile(imgPW, imgMAT, 3);
+        Imgproc.blur(imgMAT, imgMAT, new Size(5.0, 5.0));
         return imgMAT;
     }
 

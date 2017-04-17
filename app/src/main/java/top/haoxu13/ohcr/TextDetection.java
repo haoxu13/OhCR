@@ -271,8 +271,6 @@ public class TextDetection {
         strokeWidthTransform();
         SWTMedianFilter ( SWTImage, rays );
 
-        Log.d("Ray", rays.toString());
-
         Core.convertScaleAbs(SWTImage, SWTImage);
 
         return SWTImage;
@@ -336,6 +334,7 @@ public class TextDetection {
         Paint p = new Paint();
         p.setStyle(Paint.Style.STROKE);
         p.setColor(Color.RED);
+        p.setStrokeWidth(3);
 
         for(int i = 0; i < rect_list.size(); i++)
             canvas.drawRect(rect_list.get(i), p);
@@ -384,20 +383,32 @@ public class TextDetection {
         Imgproc.cvtColor(src, src, Imgproc.COLOR_GRAY2BGR);
 
         for(int i = 0; i < rect_array.length; i++) {
-            for(int j = 0; j < rect_array[i].width; j++){
-                int x = (int)rect_array[i].x;
-                int y = (int)rect_array[i].y+j;
-                src.put(y, x, pix);
-                src.put(y, x+rect_array[i].height, pix);
+            Point p1 = new Point();
+            Point p2 = new Point();
+            p1.x = rect_array[i].x;
+            p1.y = rect_array[i].y;
+            p2.x = rect_array[i].x+rect_array[i].width;
+            p2.y = rect_array[i].y+rect_array[i].height;
 
-            }
-            for(int j = 0; j < rect_array[i].height; j++){
+            Imgproc.rectangle(src, p1, p2, new Scalar(255, 0, 0), 4);
+        }
+
+        /*
+        for(int i = 0; i < rect_array.length; i++) {
+            for(int j = 0; j < rect_array[i].width; j++){
                 int x = (int)rect_array[i].x+j;
                 int y = (int)rect_array[i].y;
                 src.put(y, x, pix);
-                src.put(y+rect_array[i].width, x, pix);
+                src.put(y+rect_array[i].height, x, pix);
+            }
+            for(int j = 0; j < rect_array[i].height; j++){
+                int x = (int)rect_array[i].x;
+                int y = (int)rect_array[i].y+j;
+                src.put(y, x, pix);
+                src.put(y, x+rect_array[i].width, pix);
             }
         }
+        */
 
         return src;
     }
