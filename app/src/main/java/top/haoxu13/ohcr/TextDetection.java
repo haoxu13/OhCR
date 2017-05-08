@@ -52,11 +52,9 @@ public class TextDetection {
     }
 
     // return array of Rects
-    public native Rect[] swtWordRect(byte[] buffer, int rows, int cols, int scanline);
+    public static  native Rect[] swtWordRect(byte[] buffer, int rows, int cols, int scanline);
     public native byte[] swtImage(byte[] buffer, int rows, int cols, int scanline);
     public native byte[] TestRead(byte[] buffer, int rows, int cols, int scanline);
-    // for debug
-    private int counter = 0;
 
     private class SWTPoint2d  implements Comparator<SWTPoint2d>, Comparable<SWTPoint2d> {
         int x; // col
@@ -134,20 +132,14 @@ public class TextDetection {
 
 
                     if(G_x == 0 && G_y == 0) {
-                        counter++;
-                        Log.d("Oach..", "Zero "+String.valueOf(counter));
                         continue;
                     }
 
                     if(Float.isNaN(G_x)) {
-                        counter++;
-                        Log.d("Oach..", "Gx "+String.valueOf(counter));
                         continue;
                     }
 
                     if(Float.isNaN(G_y)) {
-                        counter++;
-                        Log.d("Oach..", "Gy "+String.valueOf(counter));
                         continue;
                     }
                     while (true) {
@@ -171,20 +163,14 @@ public class TextDetection {
                                 float G_xt = (float)gradientX.get(curPixY, curPixX)[0];
                                 float G_yt = (float)gradientY.get(curPixY, curPixX)[0];
                                 if(G_x == 0 && G_y == 0) {
-                                    counter++;
-                                    Log.d("Oach..", "Zero "+String.valueOf(counter));
                                     break;
                                 }
 
                                 if(Float.isNaN(G_x)) {
-                                    counter++;
-                                    Log.d("Oach..", "Gx "+String.valueOf(counter));
                                     break;
                                 }
 
                                 if(Float.isNaN(G_y)) {
-                                    counter++;
-                                    Log.d("Oach..", "Gy "+String.valueOf(counter));
                                     break;
                                 }
                                 mag = (float)Math.sqrt( (G_xt * G_xt) + (G_yt * G_yt) );
@@ -321,7 +307,7 @@ public class TextDetection {
         return  edgeImage;
     }
 
-    public Bitmap tessDetection(Bitmap bitmap) {
+    public static Bitmap tessDetection(Bitmap bitmap) {
         ArrayList<android.graphics.Rect> rect_list;
         Pixa pixa;
         TessBaseAPI baseApi = new TessBaseAPI();
@@ -343,7 +329,7 @@ public class TextDetection {
     }
 
 
-    public Mat MSER_Detection(Mat src) {
+    public static Mat MSER_Detection(Mat src) {
         MatOfKeyPoint mokp = new MatOfKeyPoint();
         KeyPoint kp[];
         MSER mser = MSER.create();
@@ -366,7 +352,7 @@ public class TextDetection {
         return src;
     }
 
-    public Mat swtFindRect_C(Mat src) {
+    public static Mat swtFindRect_C(Mat src) {
         Rect rect_array[];
         byte buf[] = new byte[src.rows()*src.cols()];
         int scanline = (int)(src.step1() * src.elemSize1());
@@ -393,26 +379,29 @@ public class TextDetection {
             Imgproc.rectangle(src, p1, p2, new Scalar(255, 0, 0), 4);
         }
 
-        /*
-        for(int i = 0; i < rect_array.length; i++) {
-            for(int j = 0; j < rect_array[i].width; j++){
-                int x = (int)rect_array[i].x+j;
-                int y = (int)rect_array[i].y;
-                src.put(y, x, pix);
-                src.put(y+rect_array[i].height, x, pix);
-            }
-            for(int j = 0; j < rect_array[i].height; j++){
-                int x = (int)rect_array[i].x;
-                int y = (int)rect_array[i].y+j;
-                src.put(y, x, pix);
-                src.put(y, x+rect_array[i].width, pix);
-            }
-        }
-        */
-
         return src;
     }
 
+    public static  int swtWordMedianHeight_C(Mat src) {
+        Rect rect_array[];
+        byte buf[] = new byte[src.rows()*src.cols()];
+        int scanline = (int)(src.step1() * src.elemSize1());
+        int rows = src.rows();
+        int cols = src.cols();
+        src.get(0,0, buf);
+        rect_array = swtWordRect(buf, rows, cols, scanline);
+
+
+        int Height[] = new int[rect_array.length];
+        for(int i = 0; i < rect_array.length; i++) {
+            Height[i] = rect_array[i].height;
+        }
+        Arrays.sort(Height);
+
+        return Height[(int)Math.round((double)rect_array.length/2)];
+    }
+
+    // still remain bug
     public Mat getSWTImage_C(Mat src) {
         byte buf[] = new byte[src.rows()*src.cols()];
         int scanline = (int)(src.step1() * src.elemSize1());

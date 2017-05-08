@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">OhCR</string>
+    <string name="action_camera">Camera</string>
+    <string name="action_gallery">Gallery</string>
+    <string name="action_crop">Crop</string>
+    <string name="action_ocr">Ocr</string>
+    <string name="action_table">Detec Table</string>
+    <string name="action_text">Detec Text</string>
+    <string name="action_binary">Binarize</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Text</string>
+    <string name="title_notifications">Notifications</string>
 </resources>
