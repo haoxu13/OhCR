@@ -15,11 +15,14 @@ import com.googlecode.tesseract.android.TessBaseAPI;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
 
 /**
  * Created by Hao on 2017/3/27.
@@ -78,18 +81,21 @@ public class BinarizeProccess {
     // Constant Time Percentile Filter
     // Simon Perreault and Patrick He ́bert
     public Mat fastPercentileFilter(Mat src, int P, int KS) {
+        if(P > 100 || P < 0)
+            return src;
+        if(KS % 2 == 0)
+            return src;
+
         byte buff[] = new byte[src.cols()*src.rows()];
         byte new_buff[];
         src.get(0, 0, buff);
 
         new_buff = buff;
 
-        // position
-        int pos;
-        if(P <= 50)
-            pos = (int)Math.ceil(P*KS*KS/100);
-        else
-            pos = (int)Math.floor((100-P)*KS*KS/100);
+        // Threshold
+        int Amount;
+        Amount = (int)Math.ceil(P*KS*KS/100);
+
         // radius of kernel
         int r;
         r = (KS-1)/2;
@@ -101,6 +107,17 @@ public class BinarizeProccess {
         // default value is 0
         int col_hist[][] = new int[N][256];
         int kernel_hist[] = new int[256];
+
+        for(int i = 0; i < KS; i++)
+            for(int j = 0; j < N; j++)
+            {
+                col_hist[j-1][i]= 0;
+            }
+
+        for(int i = 0; i < 256; i++)
+            for(int j = 0; j < KS; j++) {
+                kernel_hist[i] = 0;
+            }
 
         // init column histogram
         for(int i = 1; i <= KS; i++)
@@ -118,34 +135,28 @@ public class BinarizeProccess {
                 kernel_hist[i] += col_hist[j][i];
             }
 
+        // pos
+        int pos = 0;
+        int counter = 0;
+        for(int i = 0; i < 256; i++) {
+            counter += kernel_hist[i];
+            if(counter > Amount)
+            {
+                pos = i;
+                break;
+            }
+        }
+
         // O(1)
         int sum = 0;
         for(int i = 1+r; i <= M-r; i++)
             for(int j = 1+r; j <= N-r; j++)
             {
-                sum = 0;
-                if(P <= 50) {
-                    for (int k = 0; k < 256; k++) {
-                        sum += kernel_hist[k];
-                        if (sum >= pos) {
-                            new_buff[(i - 1) * N + j - 1] = (byte) k;
-                            break;
-                        }
-                    }
-                }
-                else {
-                    for (int k = 255; k >= 0; k--) {
-                        sum += kernel_hist[k];
-                        if (sum >= pos) {
-                            new_buff[(i - 1) * N + j - 1] = (byte) k;
-                            break;
-                        }
-                    }
-                }
+                new_buff[(i - 1) * N + j - 1] = (byte)kernel_hist[pos];
 
                 if(i < M-r) {
                     if (j != N - r) {
-                        for (int k = 0; k < 256; k++) {
+                        for (int k = 0; k < KS; k++) {
                             kernel_hist[k] = kernel_hist[k] - col_hist[j-r-1][k] + col_hist[j+r+1- 1][k];
                         }
                     } else {
@@ -154,6 +165,16 @@ public class BinarizeProccess {
                                 kernel_hist[k] += col_hist[z][k];
                             }
 
+                    }
+
+                    counter = 0;
+                    for(int ii = 0; ii < 256; ii++) {
+                        counter += kernel_hist[ii];
+                        if(counter > Amount)
+                        {
+                            pos = ii;
+                            break;
+                        }
                     }
 
                     col_hist[j - r - 1][Byte2Int(buff[(i-r-1) * N + j - r - 1])]--;
@@ -179,10 +200,10 @@ public class BinarizeProccess {
         g1 = new Mat(src.size(), src.type());
         g2 = new Mat(src.size(), src.type());
         result =  new Mat(src.size(), src.type());
-        Imgproc.GaussianBlur(src, g1, new Size(3,3), 0);
-        Imgproc.GaussianBlur(src, g2, new Size(15,15), 5);
+        Imgproc.GaussianBlur(src, g1, new Size(3,3), 0.6);
+        Imgproc.GaussianBlur(src, g2, new Size(31,31), 5);
         Core.subtract(g1, g2, result);
-        Imgproc.GaussianBlur(result, result, new Size(7,7), 5);
+        Imgproc.GaussianBlur(result, result, new Size(31,31), 5);
 
         return result;
     }
@@ -214,10 +235,17 @@ public class BinarizeProccess {
         return src;
     }
 
+    public Mat topHat(Mat src) {
+        Core.bitwise_not(src,src);
+        Mat element;
+        element = Imgproc.getStructuringElement(0, new Size(3,3));
+        Imgproc.morphologyEx(src, src, Imgproc.MORPH_TOPHAT,element);
+
+        return src;
+    }
+
     public Mat brightnessAndContrastAuto(Mat src)
     {
-        double clipHistPercent = 0;
-
         int histSize = 256;
         double alpha, beta;
         double minGray = 0, maxGray = 0;
@@ -244,11 +272,64 @@ public class BinarizeProccess {
     public Mat AdaptiveBinary(Mat src)
     {
         Mat result = new Mat();
-        Imgproc.blur(src, result, new Size(3.0, 3.0));
-        Imgproc.adaptiveThreshold(result, result, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 23, 7);
-        Imgproc.blur(result, result, new Size(11.0, 11.0));
+        /*
+        Mat blur = new Mat();
+        Imgproc.GaussianBlur(src, blur, new Size(3,3), 0);
+
+        Core.addWeighted(src, 1.5, blur, -0.5, 0, src);
+        */
+
+        //Imgproc.medianBlur(src, src, 3);
+        Imgproc.adaptiveThreshold(src, result, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 53, 15);
+        //Imgproc.adaptiveThreshold(src, result, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 71, 21);
+
+
+        Mat element1 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3,3));
+        Mat element2 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5,5));
+
+        Imgproc.morphologyEx(result, result, Imgproc.MORPH_CLOSE, element1);
+        Imgproc.erode(result, result, element1);
+
 
         return  result;
+    }
+
+    public Mat AdaptiveBinary_2(Mat src, int block_size)
+    {
+        Mat result = new Mat();
+        Imgproc.adaptiveThreshold(src, result, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, block_size, 15);
+
+        Mat element1 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3,3));
+        Mat element2 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5,5));
+
+        Imgproc.morphologyEx(result, result, Imgproc.MORPH_CLOSE, element1);
+        Imgproc.erode(result, result, element1);
+
+        return  result;
+    }
+
+    // Preprocess
+    public Mat preProcess(Mat src) {
+        /*
+        Imgproc.cvtColor(src, src, Imgproc.COLOR_RGB2HSV);
+        List<Mat> mat_list = new ArrayList<Mat>();
+        Core.split(src, mat_list);
+        Imgproc.createCLAHE().apply(mat_list.get(2), mat_list.get(2));
+        Core.merge(mat_list, src);
+        Imgproc.cvtColor(src, src, Imgproc.COLOR_HSV2RGB);
+        */
+
+        //
+        src.convertTo(src, -1, 1.4, 50);
+
+        Mat blur = new Mat();
+        Imgproc.GaussianBlur(src, blur, new Size(3,3), 0);
+
+        Core.addWeighted(src, 1.5, blur, -0.5, 0, src);
+
+        Imgproc.threshold(src, src, Imgproc.THRESH_OTSU, 255, Imgproc.THRESH_BINARY);
+
+        return  src;
     }
 
     public Mat thresholdPercentile(Mat src, Mat Mask, int KS)
@@ -261,12 +342,20 @@ public class BinarizeProccess {
         Log.d("threshold", "threshold");
         int sum = 0;
         int counter = 0;
+        int max = 0;
+        int min = 255;
         for(int row = 1; row <= src.rows(); row++) {
             for(int col = 1; col <= src.cols(); col++){
                 if(mask_buff[(row-1)*src.cols()+col-1] == (byte)255) {
                     new_buff[(row - 1) * src.cols() + col - 1] = buff[(row - 1) * src.cols() + col - 1];
-                    sum += buff[(row - 1) * src.cols() + col - 1];
+                    int value = Byte2Int(buff[(row - 1) * src.cols() + col - 1]);
+                    sum += value;
                     counter++;
+                    if(value > max)
+                        max = value;
+                    if(value < min)
+                        min = value;
+
                 }
                 else
                     new_buff[(row-1)*src.cols()+col-1] = (byte)255;
@@ -278,7 +367,9 @@ public class BinarizeProccess {
         for(int row = 1; row <= src.rows(); row++) {
             for(int col = 1; col <= src.cols(); col++){
                 if(new_buff[(row - 1) * src.cols() + col - 1] != (byte)255) {
-                    if(new_buff[(row - 1) * src.cols() + col - 1] > avg)
+                    //int value = Byte2Int(new_buff[(row - 1) * src.cols() + col - 1]);
+                    //int new_value = (int)Math.round((double)(value-min)/(max-min));
+                    if(Byte2Int(new_buff[(row - 1) * src.cols() + col - 1]) > 216)
                         new_buff[(row - 1) * src.cols() + col - 1] = 0;
                     else
                         new_buff[(row - 1) * src.cols() + col - 1] = (byte)255;
@@ -290,20 +381,41 @@ public class BinarizeProccess {
         return src;
     }
 
+
+    // I = (I-Imin)/Imax * Range
+    public Mat Normalize(Mat src) {
+
+        int histSize = 255;
+        double alpha, beta;
+        double minGray = 0, maxGray = 0;
+
+        Mat gray;
+        gray = src;
+        minGray = Core.minMaxLoc(gray).minVal;
+        maxGray = Core.minMaxLoc(gray).maxVal;
+
+        alpha = histSize / maxGray;
+        beta = - alpha * minGray;
+
+        src.convertTo(src, -1, alpha, beta);
+        return src;
+    }
+
+
     /**
      * Percentile Filter
      * @param src
      * @return
      */
-    public Mat Binarilze(Mat src) {
+    public Mat Percentile_Binarilze(Mat src) {
         Mat imgPW = new Mat();
         Mat imgMAT = src;
-        imgPW = percentileFilter(imgMAT, 70, 3);
-        imgMAT = imgPW;
+        //imgMAT = Normalize(imgMAT);
+        //imgPW = percentileFilter(imgMAT, 70, 11);
+        //imgMAT = imgPW;
         imgMAT = differenceOfGaussian(imgMAT);
-        imgMAT = dilation(imgMAT);
-        imgMAT = thresholdPercentile(imgPW, imgMAT, 3);
-        Imgproc.blur(imgMAT, imgMAT, new Size(5.0, 5.0));
+        //imgMAT = dilation(imgMAT);
+        //imgMAT = thresholdPercentile(imgPW, imgMAT, 3);
         return imgMAT;
     }
 

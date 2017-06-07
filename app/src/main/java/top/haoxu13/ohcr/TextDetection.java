@@ -382,7 +382,7 @@ public class TextDetection {
         return src;
     }
 
-    public static  int swtWordMedianHeight_C(Mat src) {
+    public static  int swtWordHeight_C(Mat src) {
         Rect rect_array[];
         byte buf[] = new byte[src.rows()*src.cols()];
         int scanline = (int)(src.step1() * src.elemSize1());
@@ -392,13 +392,16 @@ public class TextDetection {
         rect_array = swtWordRect(buf, rows, cols, scanline);
 
 
+        int Width[] = new int[rect_array.length];
         int Height[] = new int[rect_array.length];
+
         for(int i = 0; i < rect_array.length; i++) {
+            Width[i] = rect_array[i].width;
             Height[i] = rect_array[i].height;
         }
-        Arrays.sort(Height);
+        Arrays.sort(Width);
 
-        return Height[(int)Math.round((double)rect_array.length/2)];
+        return Height[rect_array.length-1];
     }
 
     // still remain bug

@@ -23,6 +23,12 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_binary"
+        android:orderInCategory="100"
+        android:title="@string/action_binary"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_ocr"
         android:orderInCategory="100"
         android:title="@string/action_ocr"
@@ -34,6 +40,13 @@
         android:title="@string/action_table"
         app:showAsAction="never" />
 
+
+    <item
+        android:id="@+id/action_Table_Clean"
+        android:orderInCategory="100"
+        android:title="Table Clean"
+        app:showAsAction="never" />
+
     <item
         android:id="@+id/action_text"
         android:orderInCategory="100"
@@ -41,9 +54,9 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_binary"
+        android:id="@+id/action_reset"
         android:orderInCategory="100"
-        android:title="@string/action_binary"
+        android:title="Reset"
         app:showAsAction="never" />
 
 </menu>
