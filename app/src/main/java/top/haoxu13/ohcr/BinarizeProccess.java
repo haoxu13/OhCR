@@ -284,12 +284,11 @@ public class BinarizeProccess {
         //Imgproc.adaptiveThreshold(src, result, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 71, 21);
 
 
+
         Mat element1 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3,3));
-        Mat element2 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5,5));
 
         Imgproc.morphologyEx(result, result, Imgproc.MORPH_CLOSE, element1);
         Imgproc.erode(result, result, element1);
-
 
         return  result;
     }
@@ -297,13 +296,13 @@ public class BinarizeProccess {
     public Mat AdaptiveBinary_2(Mat src, int block_size)
     {
         Mat result = new Mat();
-        Imgproc.adaptiveThreshold(src, result, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, block_size, 15);
+        Imgproc.adaptiveThreshold(src, result, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, block_size, 15);
 
-        Mat element1 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3,3));
-        Mat element2 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5,5));
+        //Mat element1 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3,3));
+        //Mat element2 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5,5));
 
-        Imgproc.morphologyEx(result, result, Imgproc.MORPH_CLOSE, element1);
-        Imgproc.erode(result, result, element1);
+        //Imgproc.morphologyEx(result, result, Imgproc.MORPH_CLOSE, element1);
+        //Imgproc.erode(result, result, element1);
 
         return  result;
     }

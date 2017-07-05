@@ -367,10 +367,20 @@ public class TableDetection {
         Mat mask = new Mat();
         Core.add(horizontal, vertical, mask);
 
-        Imgproc.threshold(mask, mask, 100, 255, Imgproc.THRESH_BINARY);
+        Imgproc.threshold(mask, mask, 100, 255, Imgproc.THRESH_OTSU);
 
         Core.add(mask, origin, origin);
 
+        /* test
+        Imgproc.cvtColor(horizontal, horizontal, Imgproc.COLOR_GRAY2BGR);
+        for(int i = 0; i < horizon_lines.size(); i++) {
+            Rect boundRect1;
+            boundRect1 = Imgproc.boundingRect(horizon_lines.get(i));
+            Imgproc.rectangle(horizontal, boundRect1.tl(), boundRect1.br(), new Scalar(255, 0, 0), 3);
+
+        }
+        return horizontal;
+        */
         return origin;
     }
 

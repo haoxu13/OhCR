@@ -115,7 +115,13 @@ public class MainActivity extends AppCompatActivity {
 
     protected void startCameraActivity() {
         Log.i("MakeMachine", "startCameraActivity()");
-        File file = new File(_path);
+
+        String path;
+        File sdcard = Environment.getExternalStorageDirectory();
+        path = sdcard.toString()+"/DCIM/OhCR.png";
+        _path = path;
+
+        File file = new File(path);
         Uri outputFileUri = Uri.fromFile(file);
 
         Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
@@ -227,6 +233,7 @@ public class MainActivity extends AppCompatActivity {
 
         Bitmap bitmap = _bitmap.copy(_bitmap.getConfig(), true);
 
+        /*
         Mat imgMAT = new Mat();
         Utils.bitmapToMat(bitmap, imgMAT);
         Imgproc.cvtColor(imgMAT, imgMAT, Imgproc.COLOR_BGR2GRAY);
@@ -235,6 +242,10 @@ public class MainActivity extends AppCompatActivity {
         imgMAT = my_textdetec.swtFindRect_C(imgMAT);
 
         Utils.matToBitmap(imgMAT, bitmap);
+        */
+
+        TextDetection my_textdetec = new TextDetection();
+        bitmap = my_textdetec.tessDetection(bitmap);
 
         _image.setImageBitmap(bitmap);
 
@@ -286,7 +297,7 @@ public class MainActivity extends AppCompatActivity {
             Utils.matToBitmap(elements.get(j), new_test_bitmap);
             baseApi.setImage(new_test_bitmap);
 
-            result = baseApi.getUTF8Text() + result + "\n";
+            result = baseApi.getUTF8Text() + "\n" + result;
         }
         //
         baseApi.end();
