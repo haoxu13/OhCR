@@ -85,6 +85,54 @@ public class MainActivity extends AppCompatActivity {
     };
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.action_camera:
+                Log.i("MakeMachine", "startCameraActivity");
+                startCameraActivity();
+                return true;
+            case R.id.action_gallery:
+                Log.i("MakeMachine", "Gallery");
+                Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(i, RESULT_LOAD_IMAGE);
+                return true;
+            case R.id.action_binary:
+                if(_bitmap != null)
+                    startBinarize();
+                return true;
+            case R.id.action_crop:
+                CropImage.activity(_image_uri)
+                        .setGuidelines(CropImageView.Guidelines.ON)
+                        .start(MainActivity.this);
+                return true;
+            case R.id.action_ocr:
+                if(_bitmap != null)
+                    startOcrHandler();
+                return true;
+            case R.id.action_table:
+                if(_bitmap != null)
+                    startTableDetection();
+                return true;
+            case R.id.action_text:
+                if(_bitmap != null)
+                    startTextDetection();
+                return true;
+            case R.id.action_Table_Clean:
+                if(_bitmap != null)
+                    startTableClean();
+                return true;
+            case R.id.action_reset:
+                if(_bitmap != null)
+                    startReset();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -97,12 +145,24 @@ public class MainActivity extends AppCompatActivity {
 
         _image = (ImageView) findViewById(R.id.image);
 
-        File folder = new File(Environment.getExternalStorageDirectory() + "/OhCR");
-        if (!folder.exists()) {
-            Log.i("MakeMachine", "folder.mkdir()");
-            folder.mkdir();
+        String path;
+        File sdcard = Environment.getExternalStorageDirectory();
+        File tess_path = new File(sdcard.toString() + "/tessdata/chi_sim.traineddata");
+        if(!tess_path.exists()) {
+            AlertDialog.Builder goLogin = new AlertDialog.Builder(this.mContext);
+            goLogin.setMessage("Tess Data Not Exist!");
+            goLogin.setCancelable(false);
+            goLogin.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    dialog.cancel();
+                }
+            });
+            AlertDialog alertLogin = goLogin.create();
+            alertLogin.show();
         }
-        _path = folder + "/OhCR_photo.jpg";
+
+        path = sdcard.toString()+"/DCIM/OhCR.png";
+        _path = path;
 
         _editText = (EditText) findViewById(R.id.edittext);
 
@@ -233,7 +293,7 @@ public class MainActivity extends AppCompatActivity {
 
         Bitmap bitmap = _bitmap.copy(_bitmap.getConfig(), true);
 
-        /*
+
         Mat imgMAT = new Mat();
         Utils.bitmapToMat(bitmap, imgMAT);
         Imgproc.cvtColor(imgMAT, imgMAT, Imgproc.COLOR_BGR2GRAY);
@@ -242,10 +302,10 @@ public class MainActivity extends AppCompatActivity {
         imgMAT = my_textdetec.swtFindRect_C(imgMAT);
 
         Utils.matToBitmap(imgMAT, bitmap);
-        */
 
-        TextDetection my_textdetec = new TextDetection();
-        bitmap = my_textdetec.tessDetection(bitmap);
+
+        //TextDetection my_textdetec = new TextDetection();
+        //bitmap = my_textdetec.tessDetection(bitmap);
 
         _image.setImageBitmap(bitmap);
 
@@ -413,53 +473,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.action_camera:
-                Log.i("MakeMachine", "startCameraActivity");
-                startCameraActivity();
-                return true;
-            case R.id.action_gallery:
-                Log.i("MakeMachine", "Gallery");
-                Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(i, RESULT_LOAD_IMAGE);
-                return true;
-            case R.id.action_binary:
-                if(_bitmap != null)
-                    startBinarize();
-                return true;
-            case R.id.action_crop:
-                CropImage.activity(_image_uri)
-                        .setGuidelines(CropImageView.Guidelines.ON)
-                        .start(MainActivity.this);
-                return true;
-            case R.id.action_ocr:
-                if(_bitmap != null)
-                    startOcrHandler();
-                return true;
-            case R.id.action_table:
-                if(_bitmap != null)
-                    startTableDetection();
-                return true;
-            case R.id.action_text:
-                if(_bitmap != null)
-                    startTextDetection();
-                return true;
-            case R.id.action_Table_Clean:
-                if(_bitmap != null)
-                    startTableClean();
-                return true;
-            case R.id.action_reset:
-                if(_bitmap != null)
-                    startReset();
-                return true;
 
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
 
     protected  void Test_Origin() {
         TableDetection td = new TableDetection();
@@ -737,6 +751,3 @@ public class MainActivity extends AppCompatActivity {
         baseApi.end();
     }
 }
-
-
-
